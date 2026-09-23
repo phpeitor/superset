@@ -1904,13 +1904,13 @@ class TestAdhocFiltersToQueryFilters:
                 "expressionType": "SIMPLE",
                 "subject": "year",
                 "operator": ">=",
-                "comparator": "2010",
+                "comparator": "2019",
             },
         ]
         result = adhoc_filters_to_query_filters(adhoc)
         assert len(result) == 2
         assert result[0] == {"col": "genre", "op": "==", "val": "Action"}
-        assert result[1] == {"col": "year", "op": ">=", "val": "2010"}
+        assert result[1] == {"col": "year", "op": ">=", "val": "2019"}
 
     def test_empty_list(self) -> None:
         assert adhoc_filters_to_query_filters([]) == []
