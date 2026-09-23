@@ -343,7 +343,7 @@
     "html-webpack-plugin": "^5.6.7",
     "http-server": "^14.1.1",
     "imports-loader": "^5.0.0",
-    "jest": "^30.4.2",
+    "jest": "^30.5.1",
     "jest-environment-jsdom": "^30.4.1",
     "jest-html-reporter": "^4.4.0",
     "jest-websocket-mock": "^2.5.0",
