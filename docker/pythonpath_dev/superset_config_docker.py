@@ -1,7 +1,6 @@
 from flask import Blueprint
 from jinja2 import ChoiceLoader, FileSystemLoader
 
-PUBLIC_ROLE_LIKE = "Gamma"
 
 # ---------------------------------------------------------------------------
 # Marca: PHPeitor Dataset (wordmark basado en el logo PHPEITOR de Bagisto)

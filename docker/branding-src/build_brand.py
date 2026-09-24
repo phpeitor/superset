@@ -5,10 +5,10 @@ Uso:  python3 docker/branding-src/build_brand.py
 Salidas:
   docker/branding/phpeitor-dataset.svg              logo de la barra (con animación)
   docker/branding/favicon.svg                       favicon
-  docker/branding-templates/_phpeitor_footer.html   footer (SVG en línea, estilo Bagisto)
+  docker/branding-templates/_phpeitor_login_logo.html  logo animado del login (SVG en línea)
 
 El wordmark PHPEITOR es el del proyecto Bagisto (brand-logo.blade.php). Las letras
-de DATASET se construyen con la misma geometría: trazos de 28, barras de 27.51,
+de DATASET (y la D del favicon) se construyen con la misma geometría: trazos de 28, barras de 27.51,
 ranuras de 8.25 e inclinación de 22.993 por cada 99.035 de alto.
 """
 from pathlib import Path
@@ -51,12 +51,13 @@ def word(text, scale, gap):
     return " ".join(parts), x - gap
 
 
-# DATASET pequeño, compacto y alineado a la derecha bajo PHPEITOR
-TAG_SCALE, TAG_GAP, TAG_TOP = 0.25, 9, H + 16
-TAG, tag_w = word("DATASET", TAG_SCALE, TAG_GAP)
-TAG_X = PHPEITOR_W - tag_w  # base de la última T alineada con la pata de la R
-LOCKUP_H = TAG_TOP + TAG_SCALE * H
-VIEWBOX = f"-6 -4 908 {LOCKUP_H + 8:.0f}"
+# Composición: DATASET grande (marino, con el trazo animado) y PHPEITOR pequeño
+# en rosa debajo, alineado a la derecha
+DATASET, DATASET_W = word("DATASET", 1, 16)
+SUB_SCALE = DATASET_W / PHPEITOR_W * 0.55
+SUB_X, SUB_Y = DATASET_W - PHPEITOR_W * SUB_SCALE, H + 14
+LOCKUP_H = SUB_Y + H * SUB_SCALE
+VIEWBOX = f"-6 -4 {DATASET_W + 12:.0f} {LOCKUP_H + 8:.0f}"
 
 
 def trace_css(width, glow):
@@ -77,10 +78,10 @@ def lockup_svg(uid, extra_attrs="", style=""):
   <title>PHPeitor Dataset</title>
   {style_tag}
   <defs>
-    <path id="{uid}" d="{PHPEITOR}"/>
+    <path id="{uid}" d="{DATASET}"/>
   </defs>
   <use href="#{uid}" fill="{NAVY}"/>
-  <path transform="translate({TAG_X:.3f} {TAG_TOP:.3f})" fill="{ROSE}" d="{TAG}"/>
+  <path transform="translate({SUB_X:.3f} {SUB_Y:.3f}) scale({SUB_SCALE:.4f})" fill="{ROSE}" d="{PHPEITOR}"/>
   <use href="#{uid}" class="phpeitor-trace"/>
 </svg>
 """
@@ -96,21 +97,21 @@ def main():
         lockup_svg("phpeitor-wordmark", style=trace_css(1.5, 3))
     )
 
-    p_glyph = PHPEITOR.split("Z")[0] + "Z"
+    d_glyph, _ = word("D", 1, 0)
     (brand / "favicon.svg").write_text(
-        f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="-8 -8 124 116">
+        f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="-8 -8 139 116">
   <style>{trace_css(1.5, 2)}
   </style>
-  <rect x="-8" y="-8" width="124" height="116" rx="22" fill="{CREAM}"/>
-  <path id="p" d="{p_glyph}" fill="{NAVY}"/>
+  <rect x="-8" y="-8" width="139" height="116" rx="22" fill="{CREAM}"/>
+  <path id="p" d="{d_glyph}" fill="{NAVY}"/>
   <use href="#p" class="phpeitor-trace"/>
 </svg>
 """
     )
 
-    (templates / "_phpeitor_footer.html").write_text(
+    (templates / "_phpeitor_login_logo.html").write_text(
         "{# Generado por docker/branding-src/build_brand.py: no editar a mano #}\n"
-        + lockup_svg("phpeitor-footer-wordmark", 'class="phpeitor-logo" ')
+        + lockup_svg("phpeitor-login-wordmark", 'class="phpeitor-login-logo" ')
     )
 
 

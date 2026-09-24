@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="-8 -8 124 116">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-8 -8 139 116">
   <style>
     .phpeitor-trace {
       fill: none; stroke: #F43F5E; stroke-opacity: 1; stroke-width: 1.5;
@@ -9,7 +9,7 @@
     @keyframes phpeitor-trace { to { stroke-dashoffset: -270px; } }
     @media (prefers-reduced-motion: reduce) { .phpeitor-trace { display: none; } }
   </style>
-  <rect x="-8" y="-8" width="124" height="116" rx="22" fill="#F1EADF"/>
-  <path id="p" d="M16.607 27.510L22.994 0.000L108.175 0.000L93.484 63.272L36.697 63.272L28.394 99.035L0.000 99.035L14.690 35.763L71.478 35.763L73.394 27.510Z" fill="#060C3B"/>
+  <rect x="-8" y="-8" width="139" height="116" rx="22" fill="#F1EADF"/>
+  <path id="p" d="M22.993 0.000L94.993 0.000L116.492 28.000L106.501 71.035L72.000 99.035L0.000 99.035Z M44.492 28.000L34.501 71.035L78.501 71.035L88.492 28.000Z" fill="#060C3B"/>
   <use href="#p" class="phpeitor-trace"/>
 </svg>

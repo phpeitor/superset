@@ -1,4 +1,4 @@
-{# Marca PHPeitor Dataset: colores de las páginas del servidor y footer estilo Bagisto #}
+{# Marca PHPeitor Dataset: colores de las páginas del servidor (login, formularios de seguridad) #}
 <style>
   .btn-primary,
   .btn-primary:disabled {
@@ -18,45 +18,4 @@
     border-color: #F43F5E;
     box-shadow: 0 0 0 2px rgba(244, 63, 94, 0.25);
   }
-
-  /* Footer: réplica del brandmark de Bagisto */
-  .phpeitor-brandmark {
-    position: relative;
-    overflow: hidden;
-    background-color: #F1EADF;
-    padding: 24px 32px;
-    text-align: center;
-  }
-  .phpeitor-logo {
-    display: block;
-    width: 100%;
-    height: auto;
-  }
-  .phpeitor-trace {
-    fill: none;
-    stroke: #f43f5e;
-    stroke-opacity: 1;
-    stroke-width: 2;
-    stroke-dasharray: 70 200;
-    vector-effect: non-scaling-stroke;
-    filter: drop-shadow(0 0 8px #f43f5e) drop-shadow(0 0 3px #fff);
-    animation: phpeitor-trace 5s linear infinite;
-  }
-  @keyframes phpeitor-trace {
-    to { stroke-dashoffset: -270px; }
-  }
-  @media (max-width: 640px) {
-    .phpeitor-brandmark { padding: 16px; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .phpeitor-trace { display: none; }
-  }
-  /* Pantallas de alto completo: SQL Lab y Explore no llevan footer */
-  body:has(.SqlLab, #explore-container) .phpeitor-brandmark { display: none; }
 </style>
-
-{% if not standalone_mode %}
-<footer class="phpeitor-brandmark">
-  {% include "_phpeitor_footer.html" %}
-</footer>
-{% endif %}
