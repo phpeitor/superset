@@ -13,7 +13,7 @@ ranuras de 8.25 e inclinación de 22.993 por cada 99.035 de alto.
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-NAVY, ROSE, CREAM = "#060C3B", "#F43F5E", "#F1EADF"
+NAVY, ROSE = "#060C3B", "#F43F5E"
 
 H = 99.035
 K = 22.993 / H
@@ -100,11 +100,12 @@ def main():
 
     d_glyph, _ = word("D", 1, 0)
     (brand / "favicon.svg").write_text(
-        f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="-8 -8 139 116">
+        f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="-4 -16 131 131">
   <style>{trace_css(1.5, 2)}
+    .glyph {{ fill: {NAVY}; }}
+    @media (prefers-color-scheme: dark) {{ .glyph {{ fill: #E6E7EC; }} }}
   </style>
-  <rect x="-8" y="-8" width="139" height="116" rx="22" fill="{CREAM}"/>
-  <path id="p" d="{d_glyph}" fill="{NAVY}"/>
+  <path id="p" class="glyph" d="{d_glyph}"/>
   <use href="#p" class="phpeitor-trace"/>
 </svg>
 """
