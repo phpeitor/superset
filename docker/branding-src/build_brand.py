@@ -78,7 +78,7 @@ def trace_css(width, glow):
 def lockup_svg(uid, extra_attrs="", style=""):
     style_tag = f"<style>{style}\n  </style>" if style else ""
     return f"""<svg {extra_attrs}viewBox="{VIEWBOX}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="PHPeitor Dataset">
-  <title>PHPeitor Dataset</title>
+  <title>Dataset PHPeitor</title>
   {style_tag}
   <defs>
     <path id="{uid}" d="{DATASET}"/>
