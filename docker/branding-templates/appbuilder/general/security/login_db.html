@@ -1,52 +1,44 @@
 {# Copia de flask_appbuilder 4.5.0 (templates/appbuilder/general/security/login_db.html)
-   con el logo animado de PHPeitor Dataset sobre el formulario. #}
+   con el personaje animado de PHPeitor Dataset (docker/branding/dataset.riv).
+
+   Animaciones del View Model "ViewModel1" del .riv:
+     typingBoolean  -> Typing  (mientras se escribe)
+     loadingBoolean -> Lading  (mientras se valida el login)
+     correct        -> Correct (login correcto, luego redirige)
+     wrong          -> Wrong   (usuario o contraseña incorrectos)
+     jump           -> Jump    (clic en el personaje)
+   Reveal e Idle las reproduce el state machine al entrar y en reposo. #}
 {% extends "appbuilder/base.html" %}
-
-
+{% import "superset/macros.html" as macros %}
 
 {% block content %}
 <style>
-  .phpeitor-login-brand {
-    display: flex;
-    justify-content: center;
-    margin: 56px 0 8px;
+  .phpeitor-avatar {
+    display: block;
+    width: 240px;
+    height: 240px;
+    margin: 0 auto -64px;
+    cursor: pointer;
   }
-  .phpeitor-login-logo {
-    width: 280px;
-    max-width: 70vw;
-    height: auto;
-    overflow: visible;
-  }
-  .phpeitor-trace {
-    fill: none;
-    stroke: #f43f5e;
-    stroke-opacity: 1;
-    stroke-width: 1.5;
-    stroke-dasharray: 70 200;
-    vector-effect: non-scaling-stroke;
-    filter: drop-shadow(0 0 4px #f43f5e) drop-shadow(0 0 1px #fff);
-    animation: phpeitor-trace 5s linear infinite;
-  }
-  @keyframes phpeitor-trace {
-    to { stroke-dashoffset: -270px; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .phpeitor-trace { display: none; }
+  .phpeitor-login-error {
+    display: none;
+    margin-bottom: 12px;
   }
 </style>
-<div class="phpeitor-login-brand">
-  {% include "_phpeitor_login_logo.html" %}
-</div>
 
 <div class="container">
-    <div id="loginbox" style="margin-top:24px;" class="mainbox col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
+    <canvas id="phpeitor-avatar" class="phpeitor-avatar" width="480" height="480"
+            role="img" aria-label="PHPeitor Dataset"></canvas>
+    <div id="loginbox" class="mainbox col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
         <div class="panel panel-primary" >
             <div class="panel-heading">
                 <div class="panel-title">{{ title }}</div>
             </div>
             <div style="padding-top:30px" class="panel-body" >
 
-                <form class="form" action="" method="post" name="login">
+                <div id="phpeitor-login-error" class="alert alert-danger phpeitor-login-error" role="alert"></div>
+
+                <form class="form" action="" method="post" name="login" id="phpeitor-login-form">
                     {{form.hidden_tag()}}
                     <div class="help-block">{{_("Enter your login and password below")}}:</div>
                     <div class="control-group{% if form.errors.openid is defined %} error{% endif %}">
@@ -92,4 +84,102 @@
         </div>
     </div>
 </div>
+
+<script src="{{ brand_url('rive/rive.js') }}" nonce="{{ macros.get_nonce() }}"></script>
+<script nonce="{{ macros.get_nonce() }}">
+(function () {
+  var form = document.getElementById("phpeitor-login-form");
+  var errorBox = document.getElementById("phpeitor-login-error");
+  var canvas = document.getElementById("phpeitor-avatar");
+  var vm = null;
+
+  // --- Personaje Rive (si no carga, el login funciona igual) -----------------
+  if (window.rive) {
+    rive.RuntimeLoader.setWasmUrl("{{ brand_url('rive/rive.wasm') }}");
+    var avatar = new rive.Rive({
+      src: "{{ brand_url('dataset.riv') }}",
+      canvas: canvas,
+      stateMachines: "State Machine 1",
+      autoplay: true,
+      autoBind: true,
+      layout: new rive.Layout({ fit: rive.Fit.Contain }),
+      onLoad: function () {
+        avatar.resizeDrawingSurfaceToCanvas();
+        vm = avatar.viewModelInstance;
+      },
+    });
+  }
+  function setBool(name, value) {
+    var prop = vm && vm.boolean(name);
+    if (prop) prop.value = value;
+  }
+  function fire(name) {
+    var prop = vm && vm.trigger(name);
+    if (prop) prop.trigger();
+  }
+
+  canvas.addEventListener("click", function () { fire("jump"); });
+
+  // --- Typing mientras se escribe -------------------------------------------
+  var typingTimer = null;
+  form.querySelectorAll("#username, #password").forEach(function (input) {
+    input.addEventListener("input", function () {
+      setBool("typingBoolean", true);
+      clearTimeout(typingTimer);
+      typingTimer = setTimeout(function () { setBool("typingBoolean", false); }, 900);
+    });
+    input.addEventListener("blur", function () { setBool("typingBoolean", false); });
+  });
+
+  // --- Envío: cargando -> correcto / incorrecto -----------------------------
+  function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+
+  form.addEventListener("submit", function (event) {
+    if (!window.fetch) return; // navegador antiguo: envío normal
+    event.preventDefault();
+    errorBox.style.display = "none";
+    clearTimeout(typingTimer);
+    setBool("typingBoolean", false);
+    setBool("loadingBoolean", true);
+
+    var request = fetch(window.location.href, {
+      method: "POST",
+      body: new FormData(form),
+      credentials: "same-origin",
+      redirect: "follow",
+    });
+
+    // el "cargando" se ve al menos 700 ms aunque el servidor responda antes
+    Promise.all([request, wait(700)]).then(function (results) {
+      var response = results[0];
+      var finalPath = new URL(response.url).pathname;
+      setBool("loadingBoolean", false);
+
+      if (finalPath.indexOf("/login") !== 0) {
+        fire("correct");
+        return wait(1200).then(function () { window.location.href = response.url; });
+      }
+
+      fire("wrong");
+      return response.text().then(function (html) {
+        var page = new DOMParser().parseFromString(html, "text/html");
+        var alerts = page.querySelectorAll("#alert-container .alert");
+        var alert = alerts[alerts.length - 1];
+        errorBox.textContent = alert
+          ? alert.textContent.replace("\u00d7", "").trim()
+          : {{ _('Invalid login. Please try again.')|tojson }};
+        errorBox.style.display = "block";
+        // el token CSRF puede renovarse en cada respuesta
+        var token = page.querySelector("input[name=csrf_token]");
+        var current = form.querySelector("input[name=csrf_token]");
+        if (token && current) current.value = token.value;
+        form.querySelector("#password").select();
+      });
+    }).catch(function () {
+      setBool("loadingBoolean", false);
+      form.submit(); // si falla la red, envío normal
+    });
+  });
+})();
+</script>
 {% endblock %}

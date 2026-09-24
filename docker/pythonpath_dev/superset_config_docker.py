@@ -1,6 +1,8 @@
+import mimetypes
+from pathlib import Path
+
 from flask import Blueprint
 from jinja2 import ChoiceLoader, FileSystemLoader
-
 
 # ---------------------------------------------------------------------------
 # Marca: PHPeitor Dataset (wordmark basado en el logo PHPEITOR de Bagisto)
@@ -14,6 +16,23 @@ branding_bp = Blueprint(
     static_url_path="/branding",
 )
 BLUEPRINTS = [branding_bp]
+BRANDING_DIR = Path("/app/docker/branding")
+
+# El runtime de Rive necesita que el .wasm se sirva con su tipo MIME
+mimetypes.add_type("application/wasm", ".wasm")
+
+
+def brand_url(name):
+    """URL de un archivo de marca con ?v=<fecha de modificación>.
+
+    Superset cachea los estáticos hasta un año; al regenerar un archivo cambia la
+    versión y el navegador descarga el nuevo.
+    """
+    try:
+        version = int((BRANDING_DIR / name).stat().st_mtime)
+    except OSError:
+        version = 0
+    return f"/branding/{name}?v={version}"
 
 
 def FLASK_APP_MUTATOR(app):  # noqa: N802
@@ -21,13 +40,14 @@ def FLASK_APP_MUTATOR(app):  # noqa: N802
     app.jinja_loader = ChoiceLoader(
         [FileSystemLoader("/app/docker/branding-templates"), app.jinja_loader]
     )
+    app.jinja_env.globals["brand_url"] = brand_url
 
 
 APP_NAME = "PHPeitor Dataset"
-APP_ICON = "/branding/phpeitor-dataset.svg"
+APP_ICON = brand_url("phpeitor-dataset.svg")
 LOGO_TARGET_PATH = "/dashboard/list/"
 LOGO_TOOLTIP = "PHPeitor Dataset"
-FAVICONS = [{"href": "/branding/favicon.svg", "type": "image/svg+xml"}]
+FAVICONS = [{"href": brand_url("favicon.svg"), "type": "image/svg+xml"}]
 
 BABEL_DEFAULT_LOCALE = "es"
 
@@ -67,3 +87,35 @@ EXTRA_CATEGORICAL_COLOR_SCHEMES = [
         ],
     }
 ]
+
+# CSP de producción de Superset 4.1.2 + 'wasm-unsafe-eval', que necesita el runtime
+# de Rive (WebAssembly) en el login. En desarrollo se usa TALISMAN_DEV_CONFIG, que
+# ya permite 'unsafe-eval'.
+TALISMAN_CONFIG = {
+    "content_security_policy": {
+        "base-uri": ["'self'"],
+        "default-src": ["'self'"],
+        "img-src": [
+            "'self'",
+            "blob:",
+            "data:",
+            "https://apachesuperset.gateway.scarf.sh",
+            "https://static.scarf.sh/",
+        ],
+        "worker-src": ["'self'", "blob:"],
+        "connect-src": [
+            "'self'",
+            "https://api.mapbox.com",
+            "https://events.mapbox.com",
+        ],
+        "object-src": "'none'",
+        "style-src": [
+            "'self'",
+            "'unsafe-inline'",
+        ],
+        "script-src": ["'self'", "'strict-dynamic'", "'wasm-unsafe-eval'"],
+    },
+    "content_security_policy_nonce_in": ["script-src"],
+    "force_https": False,
+    "session_cookie_secure": False,
+}

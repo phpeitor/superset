@@ -30,11 +30,13 @@ Superset queda en el puerto definido en `docker-compose-image-tag.yml`.
 | Archivo | Qué hace |
 |---|---|
 | `docker/pythonpath_dev/superset_config_docker.py` | Nombre, logo, favicon, idioma, colores del tema, paleta de gráficos, rutas `/branding` y plantillas propias |
-| `docker/branding/` | Logo (`phpeitor-dataset.svg`) y favicon, servidos en `/branding/...` |
-| `docker/branding-templates/tail_js_custom_extra.html` | Colores de login/formularios y footer animado estilo Bagisto |
+| `docker/branding/` | Logo (`phpeitor-dataset.svg`), favicon, personaje del login (`dataset.riv`) y runtime de Rive (`rive/`), servidos en `/branding/...` |
+| `docker/branding-templates/tail_js_custom_extra.html` | Colores de login y formularios |
+| `docker/branding-templates/appbuilder/general/security/login_db.html` | Login con el personaje Rive: Typing al escribir, cargando al enviar, Correct/Wrong según el resultado, Jump al hacer clic |
 | `docker/branding-src/build_brand.py` | Genera los SVG y el footer (`python3 docker/branding-src/build_brand.py`) |
 
-Después de cambiar la configuración o las plantillas: `docker restart superset_app`.
+Después de cambiar la configuración o regenerar el logo: `docker restart superset_app`.
+Las URLs de marca llevan `?v=<fecha del archivo>`, así que el navegador descarga la versión nueva sin limpiar caché.
 
 ## Qué no viaja en git
 - `.env` y `docker/.env-local`: llaves y contraseñas.

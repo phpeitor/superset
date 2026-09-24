@@ -1,0 +1,3 @@
+@rive-app/canvas 2.43.1 (licencia MIT)
+https://www.npmjs.com/package/@rive-app/canvas
+Actualizar: descargar rive.js y rive.wasm de https://cdn.jsdelivr.net/npm/@rive-app/canvas@<version>/
