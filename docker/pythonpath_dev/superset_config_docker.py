@@ -43,10 +43,10 @@ def FLASK_APP_MUTATOR(app):  # noqa: N802
     app.jinja_env.globals["brand_url"] = brand_url
 
 
-APP_NAME = "PHPeitor Dataset"
+APP_NAME = "Dataset PHPeitor"
 APP_ICON = brand_url("phpeitor-dataset.svg")
 LOGO_TARGET_PATH = "/dashboard/list/"
-LOGO_TOOLTIP = "PHPeitor Dataset"
+LOGO_TOOLTIP = "Dataset PHPeitor"
 FAVICONS = [{"href": brand_url("favicon.svg"), "type": "image/svg+xml"}]
 
 BABEL_DEFAULT_LOCALE = "es"
