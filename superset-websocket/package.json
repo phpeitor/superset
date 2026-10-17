@@ -30,7 +30,7 @@
     "@types/eslint__js": "^8.42.3",
     "@types/jest": "^29.5.14",
     "@types/jsonwebtoken": "^9.0.10",
-    "@types/lodash": "^4.17.24",
+    "@types/lodash": "^4.17.25",
     "@types/node": "^25.9.1",
     "@types/ws": "^8.18.1",
     "@typescript-eslint/eslint-plugin": "^8.60.0",
